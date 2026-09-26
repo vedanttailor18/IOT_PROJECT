@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Environmental Monitor</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+/* =====================================================
+   BASE
+===================================================== */
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#f6f6f3;
+    color:#171717;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+.container{
+    max-width:1280px;
+    margin:auto;
+    padding:32px 36px 50px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding-bottom:28px;
+    border-bottom:1px solid #deded9;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.brand-mark{
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    background:#171717;
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+}
+
+.brand-name{
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:-0.3px;
+}
+
+.brand-sub{
+    margin-top:3px;
+    color:#777;
+    font-size:12px;
+}
+
+.live-status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-size:12px;
+    color:#555;
+}
+
+.live-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#19a463;
+}
+
+
+/* =====================================================
+   LOCATION
+===================================================== */
+
+.location-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:25px 0;
+}
+
+.location{
+    font-size:14px;
+    font-weight:600;
+}
+
+.coordinates{
+    margin-top:5px;
+    color:#858585;
+    font-size:12px;
+}
+
+.updated{
+    color:#858585;
+    font-size:12px;
+}
+
+
+/* =====================================================
+   OVERVIEW
+===================================================== */
+
+.overview{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.hero{
+    background:#171717;
+    color:white;
+
+    min-height:220px;
+
+    padding:28px;
+
+    border-radius:14px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.hero-label{
+    color:#a8a8a8;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.hero-title{
+    font-size:42px;
+    line-height:1;
+    letter-spacing:-2px;
+    font-weight:700;
+}
+
+.hero-description{
+    max-width:500px;
+    color:#a8a8a8;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+
+    margin-top:18px;
+
+    width:max-content;
+
+    padding:7px 11px;
+
+    border:1px solid #383838;
+    border-radius:100px;
+
+    font-size:12px;
+}
+
+.status-dot{
+    width:6px;
+    height:6px;
+    background:#35c77a;
+    border-radius:50%;
+}
+
+
+/* =====================================================
+   AQI PANEL
+===================================================== */
+
+.aqi-panel{
+    background:white;
+    border:1px solid #deded9;
+    border-radius:14px;
+
+    padding:28px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.small-label{
+    color:#777;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+}
+
+.aqi-number{
+    font-size:64px;
+    font-weight:700;
+    letter-spacing:-4px;
+    margin-top:10px;
+}
+
+.aqi-label{
+    font-size:13px;
+    color:#555;
+}
+
+.aqi-line{
+    width:100%;
+    height:4px;
+    background:#e7e7e2;
+    margin-top:20px;
+    overflow:hidden;
+}
+
+.aqi-fill{
+    width:25%;
+    height:100%;
+    background:#171717;
+}
+
+
+/* =====================================================
+   SENSOR GRID
+===================================================== */
+
+.sensor-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+
+    margin-bottom:18px;
+}
+
+.sensor{
+    background:white;
+    border:1px solid #deded9;
+    border-radius:12px;
+
+    padding:20px;
+}
+
+.sensor-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.sensor-name{
+    font-size:12px;
+    color:#777;
+}
+
+.sensor-symbol{
+    font-size:15px;
+}
+
+.sensor-value{
+    margin-top:22px;
+
+    font-size:30px;
+    font-weight:700;
+
+    letter-spacing:-1.5px;
+}
+
+.sensor-unit{
+    color:#999;
+    font-size:12px;
+    font-weight:500;
+}
+
+.sensor-source{
+    margin-top:9px;
+
+    font-size:11px;
+    color:#999;
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.section-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+
+    margin:38px 0 12px;
+}
+
+.section-title{
+    font-size:15px;
+    font-weight:700;
+}
+
+.section-note{
+    color:#999;
+    font-size:11px;
+}
+
+
+/* =====================================================
+   CHART GRID
+===================================================== */
+
+.chart-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.chart-card{
+    background:white;
+    border:1px solid #deded9;
+    border-radius:12px;
+
+    padding:20px;
+}
+
+.chart-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:16px;
+}
+
+.chart-name{
+    font-size:13px;
+    font-weight:600;
+}
+
+.chart-value{
+    font-size:12px;
+    color:#777;
+}
+
+.chart-container{
+    height:190px;
+}
+
+
+/* =====================================================
+   DATA SOURCE
+===================================================== */
+
+.sources{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+
+    margin-top:12px;
+}
+
+.source{
+    background:white;
+
+    border:1px solid #deded9;
+    border-radius:12px;
+
+    padding:18px;
+}
+
+.source-title{
+    font-size:12px;
+    font-weight:700;
+}
+
+.source-text{
+    margin-top:7px;
+    color:#888;
+    font-size:11px;
+    line-height:1.5;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+    display:flex;
+    justify-content:space-between;
+
+    border-top:1px solid #deded9;
+
+    margin-top:45px;
+    padding-top:18px;
+
+    color:#999;
+    font-size:11px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:900px){
+
+    .overview{
+        grid-template-columns:1fr;
+    }
+
+    .sensor-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .chart-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
+@media(max-width:600px){
+
+    .container{
+        padding:20px;
+    }
+
+    header{
+        align-items:center;
+    }
+
+    .location-row{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+    }
+
+    .sensor-grid{
+        grid-template-columns:1fr;
+    }
+
+    .sources{
+        grid-template-columns:1fr;
+    }
+
+    .hero-title{
+        font-size:34px;
+    }
+
+}
+
+
+/* =====================================================
+   CHART.JS
+===================================================== */
+
+canvas{
+    width:100% !important;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<!-- ===================================================
+     HEADER
+=================================================== -->
+
+<header>
+
+    <div class="brand">
+
+        <div class="brand-mark">
+            🌤️
+        </div>
+
+        <div>
+
+            <div class="brand-name">
+                Environmental Monitor
+            </div>
+
+            <div class="brand-sub">
+                Smart IoT monitoring system
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="live-status">
+
+        <span class="live-dot"></span>
+
+        Live
+
+    </div>
+
+</header>
+
+
+
+<!-- ===================================================
+     LOCATION
+=================================================== -->
+
+<div class="location-row">
+
+    <div>
+
+        <div class="location">
+            <span id="locationName">
+                Current location
+            </span>
+        </div>
+
+        <div
+            class="coordinates"
+            id="locationInfo">
+
+            Detecting location...
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="updated"
+        id="lastUpdated">
+
+        Waiting for data
+
+    </div>
+
+</div>
+
+
+
+<!-- ===================================================
+     OVERVIEW
+=================================================== -->
+
+<section class="overview">
+
+
+    <div class="hero">
+
+        <div>
+
+            <div class="hero-label">
+                Environment status
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <div
+                class="hero-title"
+                id="environmentStatus">
+
+                Monitoring
+
+            </div>
+
+            <div class="hero-description">
+
+                Real-time environmental observations
+                from the virtual IoT device and
+                location-based online data.
+
+            </div>
+
+
+            <div class="status">
+
+                <span class="status-dot"></span>
+
+                System operational
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- AQI -->
+
+    <div class="aqi-panel">
+
+        <div>
+
+            <div class="small-label">
+                Air quality index
+            </div>
+
+            <div
+                class="aqi-number"
+                id="aqi">
+
+                --
+
+            </div>
+
+            <div
+                class="aqi-label"
+                id="aqiLabel">
+
+                Waiting for data
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <div class="aqi-line">
+
+                <div
+                    class="aqi-fill"
+                    id="aqiFill">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===================================================
+     SENSOR VALUES
+=================================================== -->
+
+<section class="sensor-grid">
+
+
+    <!-- TEMPERATURE -->
+
+    <div class="sensor">
+
+        <div class="sensor-head">
+
+            <div class="sensor-name">
+                Temperature
+            </div>
+
+            <div class="sensor-symbol">
+                °C
+            </div>
+
+        </div>
+
+        <div class="sensor-value">
+
+            <span id="temperature">
+                --
+            </span>
+
+            <span class="sensor-unit">
+                °C
+            </span>
+
+        </div>
+
+        <div class="sensor-source">
+            DHT22 / online weather
+        </div>
+
+    </div>
+
+
+
+    <!-- HUMIDITY -->
+
+    <div class="sensor">
+
+        <div class="sensor-head">
+
+            <div class="sensor-name">
+                Humidity
+            </div>
+
+            <div class="sensor-symbol">
+                %
+            </div>
+
+        </div>
+
+        <div class="sensor-value">
+
+            <span id="humidity">
+                --
+            </span>
+
+            <span class="sensor-unit">
+                %
+            </span>
+
+        </div>
+
+        <div class="sensor-source">
+            DHT22 / online weather
+        </div>
+
+    </div>
+
+
+
+    <!-- WIND -->
+
+    <div class="sensor">
+
+        <div class="sensor-head">
+
+            <div class="sensor-name">
+                Wind speed
+            </div>
+
+            <div class="sensor-symbol">
+                km/h
+            </div>
+
+        </div>
+
+        <div class="sensor-value">
+
+            <span id="wind">
+                --
+            </span>
+
+            <span class="sensor-unit">
+                km/h
+            </span>
+
+        </div>
+
+        <div class="sensor-source">
+            Virtual IoT sensor
+        </div>
+
+    </div>
+
+
+
+    <!-- AQI -->
+
+    <div class="sensor">
+
+        <div class="sensor-head">
+
+            <div class="sensor-name">
+                Air quality
+            </div>
+
+            <div class="sensor-symbol">
+                AQI
+            </div>
+
+        </div>
+
+        <div class="sensor-value">
+
+            <span id="aqiCard">
+                --
+            </span>
+
+            <span class="sensor-unit">
+                AQI
+            </span>
+
+        </div>
+
+        <div class="sensor-source">
+            Virtual / online air quality
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===================================================
+     HISTORY
+=================================================== -->
+
+<div class="section-head">
+
+    <div class="section-title">
+        Environmental history
+    </div>
+
+    <div class="section-note">
+        Last 20 observations
+    </div>
+
+</div>
+
+
+
+<section class="chart-grid">
+
+
+    <div class="chart-card">
+
+        <div class="chart-header">
+
+            <div class="chart-name">
+                Temperature
+            </div>
+
+            <div
+                class="chart-value"
+                id="temperatureChartValue">
+
+                --
+
+            </div>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="temperatureChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="chart-card">
+
+        <div class="chart-header">
+
+            <div class="chart-name">
+                Humidity
+            </div>
+
+            <div
+                class="chart-value"
+                id="humidityChartValue">
+
+                --
+
+            </div>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="humidityChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="chart-card">
+
+        <div class="chart-header">
+
+            <div class="chart-name">
+                Wind speed
+            </div>
+
+            <div
+                class="chart-value"
+                id="windChartValue">
+
+                --
+
+            </div>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="windChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="chart-card">
+
+        <div class="chart-header">
+
+            <div class="chart-name">
+                Air quality
+            </div>
+
+            <div
+                class="chart-value"
+                id="aqiChartValue">
+
+                --
+
+            </div>
+
+        </div>
+
+        <div class="chart-container">
+
+            <canvas id="aqiChart"></canvas>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===================================================
+     SOURCES
+=================================================== -->
+
+<div class="section-head">
+
+    <div class="section-title">
+        Data sources
+    </div>
+
+</div>
+
+
+<section class="sources">
+
+
+    <div class="source">
+
+        <div class="source-title">
+            Virtual IoT device
+        </div>
+
+        <div class="source-text">
+
+            Wokwi ESP32 with DHT22 and
+            virtual analog sensors. Data is
+            transmitted using MQTT.
+
+        </div>
+
+    </div>
+
+
+    <div class="source">
+
+        <div class="source-title">
+            Online environmental data
+        </div>
+
+        <div class="source-text">
+
+            Location-based weather and
+            air-quality observations retrieved
+            through online environmental APIs.
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<footer>
+
+    <span>
+        Smart IoT Environmental Monitoring
+    </span>
+
+    <span>
+        Flask · MQTT · Wokwi
+    </span>
+
+</footer>
+
+
+</div>
+
+
+
+<script>
+
+/* =====================================================
+   CHART CONFIGURATION
+===================================================== */
+
+const maxPoints = 20;
+
+
+function createChart(id){
+
+    return new Chart(
+        document.getElementById(id),
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:[],
+
+                datasets:[{
+
+                    data:[],
+
+                    borderColor:"#171717",
+
+                    backgroundColor:"rgba(23,23,23,0.04)",
+
+                    fill:true,
+
+                    borderWidth:1.5,
+
+                    pointRadius:1.5,
+
+                    pointHoverRadius:4,
+
+                    tension:0.35
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                animation:false,
+
+                plugins:{
+                    legend:{
+                        display:false
+                    }
+                },
+
+                scales:{
+
+                    x:{
+
+                        display:false,
+
+                        grid:{
+                            display:false
+                        }
+
+                    },
+
+                    y:{
+
+                        border:{
+                            display:false
+                        },
+
+                        grid:{
+                            color:"#eeeeea"
+                        },
+
+                        ticks:{
+                            color:"#999",
+
+                            font:{
+                                size:10
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+}
+
+
+const temperatureChart =
+createChart("temperatureChart");
+
+const humidityChart =
+createChart("humidityChart");
+
+const windChart =
+createChart("windChart");
+
+const aqiChart =
+createChart("aqiChart");
+
+
+/* =====================================================
+   ADD CHART DATA
+===================================================== */
+
+function pushData(chart,value){
+
+    const time =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour:"2-digit",
+                minute:"2-digit"
+            }
+        );
+
+    chart.data.labels.push(time);
+
+    chart.data.datasets[0].data.push(value);
+
+
+    if(
+        chart.data.labels.length >
+        maxPoints
+    ){
+
+        chart.data.labels.shift();
+
+        chart.data.datasets[0].data.shift();
+
+    }
+
+
+    chart.update();
+
+}
+
+
+/* =====================================================
+   AQI LABEL
+===================================================== */
+
+function getAQILabel(aqi){
+
+    if(aqi <= 50)
+        return "Good";
+
+    if(aqi <= 100)
+        return "Moderate";
+
+    if(aqi <= 150)
+        return "Unhealthy for sensitive groups";
+
+    if(aqi <= 200)
+        return "Unhealthy";
+
+    if(aqi <= 300)
+        return "Very unhealthy";
+
+    return "Hazardous";
+}
+
+
+/* =====================================================
+   UPDATE DATA
+===================================================== */
+
+async function updateLiveData(){
+
+    try{
+
+        const response =
+            await fetch("/live-data");
+
+        const data =
+            await response.json();
+
+
+        if(data.error){
+
+            console.log(data.error);
+
+            return;
+
+        }
+
+
+        /* ---------------- VALUES ---------------- */
+
+        const temperature =
+            Number(data.temperature);
+
+        const humidity =
+            Number(data.humidity);
+
+        const wind =
+            Number(data.wind);
+
+        const aqi =
+            Number(data.aqi);
+
+
+        document.getElementById(
+            "temperature"
+        ).innerText =
+            temperature.toFixed(1);
+
+
+        document.getElementById(
+            "humidity"
+        ).innerText =
+            humidity.toFixed(1);
+
+
+        document.getElementById(
+            "wind"
+        ).innerText =
+            wind.toFixed(1);
+
+
+        document.getElementById(
+            "aqi"
+        ).innerText =
+            Math.round(aqi);
+
+
+        document.getElementById(
+            "aqiCard"
+        ).innerText =
+            Math.round(aqi);
+
+
+        document.getElementById(
+            "aqiLabel"
+        ).innerText =
+            getAQILabel(aqi);
+
+
+        /* ---------------- STATUS ---------------- */
+
+        let status =
+            getAQILabel(aqi);
+
+        document.getElementById(
+            "environmentStatus"
+        ).innerText =
+            status;
+
+
+        /* ---------------- AQI BAR ---------------- */
+
+        let percentage =
+            Math.min(
+                (aqi / 300) * 100,
+                100
+            );
+
+        document.getElementById(
+            "aqiFill"
+        ).style.width =
+            percentage + "%";
+
+
+        /* ---------------- CHARTS ---------------- */
+
+        pushData(
+            temperatureChart,
+            temperature
+        );
+
+        pushData(
+            humidityChart,
+            humidity
+        );
+
+        pushData(
+            windChart,
+            wind
+        );
+
+        pushData(
+            aqiChart,
+            aqi
+        );
+
+
+        /* ---------------- CHART VALUES ---------------- */
+
+        document.getElementById(
+            "temperatureChartValue"
+        ).innerText =
+            temperature.toFixed(1) + " °C";
+
+
+        document.getElementById(
+            "humidityChartValue"
+        ).innerText =
+            humidity.toFixed(1) + " %";
+
+
+        document.getElementById(
+            "windChartValue"
+        ).innerText =
+            wind.toFixed(1) + " km/h";
+
+
+        document.getElementById(
+            "aqiChartValue"
+        ).innerText =
+            Math.round(aqi) + " AQI";
+
+
+        /* ---------------- TIME ---------------- */
+
+        document.getElementById(
+            "lastUpdated"
+        ).innerText =
+            "Updated " +
+            new Date().toLocaleTimeString(
+                [],
+                {
+                    hour:"2-digit",
+                    minute:"2-digit"
+                }
+            );
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =====================================================
+   LOCATION
+===================================================== */
+
+function getLocation(){
+
+    if(!navigator.geolocation){
+
+        document.getElementById(
+            "locationInfo"
+        ).innerText =
+            "Location unavailable";
+
+        return;
+
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position){
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+
+            document.getElementById(
+                "locationInfo"
+            ).innerText =
+
+                "Latitude " +
+                latitude.toFixed(5) +
+
+                " · Longitude " +
+                longitude.toFixed(5);
+
+
+            await fetch(
+                "/location",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        latitude:latitude,
+
+                        longitude:longitude
+
+                    })
+
+                }
+            );
+
+
+            updateLiveData();
+
+        },
+
+
+        function(){
+
+            document.getElementById(
+                "locationInfo"
+            ).innerText =
+                "Location permission required";
+
+        }
+
+    );
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+getLocation();
+
+
+/* Refresh every minute */
+
+setInterval(
+    updateLiveData,
+    60000
+);
+
+</script>
+
+</body>
+</html>
